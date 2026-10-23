@@ -20,17 +20,18 @@ import {
   SettingsToggleRow,
 } from "../../components/solid/settings-ui.tsx";
 import { SettingsWorkspace } from "../../components/solid/settings-workspace.tsx";
+import { registerLabsEnglish } from "../../i18n/locales/en-labs.ts";
 import {
   currentConfigObject,
   resolveEditableSnapshotConfig,
 } from "../../lib/config/config-state-model.ts";
 import { buildExternalLinkRel, EXTERNAL_LINK_TARGET } from "../../lib/external-link.ts";
 import { formatUiError } from "../../lib/format-error.ts";
-import { shouldHandleNavigationClick } from "../../lib/navigation-click.ts";
+import { handleNavigationClick } from "../../lib/navigation-click.ts";
 import { useApplication } from "../../lib/reactive/context.ts";
 import { projectRuntimeConfig } from "../../lib/reactive/domain-capabilities.ts";
 import { useGatewayPage } from "../../lib/reactive/gateway-page.ts";
-import { t } from "../../lib/reactive/i18n.ts";
+import { registerEnglishCatalog, t } from "../../lib/reactive/i18n.ts";
 import { SettingsSelectRow } from "../config/settings-select-row.tsx";
 import { pluginDetailLocation } from "../plugins/detail-tabs.ts";
 import {
@@ -40,6 +41,8 @@ import {
   resolveLabFeatureState,
   type LabFeature,
 } from "./labs-registry.ts";
+
+registerEnglishCatalog(registerLabsEnglish);
 
 export function LabsPage() {
   const context = useApplication();
@@ -236,12 +239,9 @@ export function LabsPage() {
         class="btn btn--sm oc-action oc-action-ghost"
         href={`${location().pathname}${location().search}`}
         aria-label={t("labsPage.configureFeature", { name: props.featureTitle })}
-        onClick={(event: MouseEvent) => {
-          if (shouldHandleNavigationClick(event)) {
-            event.preventDefault();
-            context.navigate("plugin-settings", location());
-          }
-        }}
+        onClick={(event: MouseEvent) =>
+          handleNavigationClick(event, () => context.navigate("plugin-settings", location()))
+        }
       >
         {t("labsPage.configure")}
       </a>

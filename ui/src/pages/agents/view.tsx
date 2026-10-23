@@ -48,6 +48,7 @@ export type AgentsProps = Omit<
   >;
   overview: Omit<AgentsPageView["overview"], "modelSelectionPolicy" | "modelCatalogRetired"> &
     Partial<Pick<AgentsPageView["overview"], "modelSelectionPolicy" | "modelCatalogRetired">>;
+  identitySavePending?: boolean;
   onOpenMemoryImport?: AgentsPageView["onOpenMemoryImport"];
   onOpenMemorySettings?: AgentsPageView["onOpenMemorySettings"];
 };
@@ -91,8 +92,11 @@ export function Agents(props: AgentsProps) {
       : (props.readData().agentsList?.defaultId ?? null);
   const selectedAgent = createMemo(
     () =>
-      props.readData().agentsList?.agents.find((agent) => agent.id === props.selectedAgentId) ??
-      null,
+      props
+        .readData()
+        .agentsList?.agents.find(
+          (agent) => agent.kind !== "system" && agent.id === props.selectedAgentId,
+        ) ?? null,
   );
   const configActions = () => ({
     configForm: config(),
@@ -146,18 +150,29 @@ export function Agents(props: AgentsProps) {
                   <Show when={agent().id} keyed>
                     {(id) => {
                       let label!: HTMLSpanElement;
+                      let announcement!: HTMLSpanElement;
                       return (
-                        <button
-                          type="button"
-                          class="btn btn--sm btn--ghost"
-                          onClick={(event) =>
-                            void handleCopyButton(event, id, t("agents.copyId"), { label })
-                          }
-                        >
-                          <span ref={(element) => (label = element)} data-copy-label>
-                            {t("agents.copyId")}
-                          </span>
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            class="btn btn--sm btn--ghost"
+                            onClick={(event) =>
+                              void handleCopyButton(event, id, t("agents.copyId"), {
+                                label,
+                                announcement,
+                              })
+                            }
+                          >
+                            <span ref={(element) => (label = element)} data-copy-label>
+                              {t("agents.copyId")}
+                            </span>
+                          </button>
+                          <span
+                            ref={(element) => (announcement = element)}
+                            class="sr-only"
+                            role="status"
+                          />
+                        </>
                       );
                     }}
                   </Show>
@@ -261,6 +276,7 @@ export function Agents(props: AgentsProps) {
                       {(agentId) => (
                         <AgentOverview
                           {...props.overview}
+                          identitySavePending={props.identitySavePending ?? false}
                           readData={props.readData}
                           {...configActions()}
                           agent={agent()}

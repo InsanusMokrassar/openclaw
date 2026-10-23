@@ -22,6 +22,7 @@ import { createPluginRecord } from "../plugins/status.test-fixtures.js";
 import { createChannelTestPluginBase, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { bindCronJobAdmittedRun, clearCronJobActive, markCronJobActive } from "./active-jobs.js";
 import { makeCronJob } from "./delivery.test-helpers.js";
+import { TEST_SCHEDULED_OCCURRENCE } from "./scheduled-occurrence.test-support.js";
 import type { CronScheduledToolCallerOrigin } from "./scheduled-tool-policy.js";
 import { withCronStore } from "./store.worker.test-support.js";
 import { createCronScriptRuntime } from "./trigger-script.js";
@@ -102,6 +103,7 @@ it.each(["trigger", "payload"] as const)(
             };
           }
           const params = {
+            occurrence: TEST_SCHEDULED_OCCURRENCE,
             job,
             script,
             state: null,
@@ -250,6 +252,7 @@ it("reuses hydrated creator origin for script admission across warm cache change
         }
         try {
           return await runtime.executePayload({
+            occurrence: TEST_SCHEDULED_OCCURRENCE,
             job,
             streamBatch: undefined,
             abortSignal: controller.signal,
